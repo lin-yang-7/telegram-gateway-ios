@@ -1,0 +1,153 @@
+syntax = "proto3";
+
+package gateway.v1;
+
+// Source of truth: gateway/api/gateway/v1/gateway_session.proto.
+// Keep this mirrored definition compatible with the Go Gateway before release.
+service GatewaySession {
+  rpc Connect(stream ClientEnvelope) returns (stream ServerEnvelope);
+}
+
+service GatewayMedia {
+  rpc Download(MediaDownloadRequest) returns (stream MediaChunk);
+  rpc Upload(MediaUploadRequest) returns (MediaUploadResult);
+}
+
+service GatewayMediaAuthorization {
+  rpc Prepare(PrepareMediaAuthorizationRequest) returns (PrepareMediaAuthorizationResponse);
+  rpc PrepareCallProxy(PrepareCallProxyRequest) returns (PrepareCallProxyResponse);
+  rpc Report(MediaAuthorizationReportRequest) returns (MediaAuthorizationReportResponse);
+}
+
+message PrepareMediaAuthorizationRequest {
+  string account_id = 1;
+  string device_token = 2;
+  int32 target_dc_id = 3;
+}
+
+message PrepareMediaAuthorizationResponse {
+  int32 target_dc_id = 1;
+  int64 authorization_id = 2;
+  bytes authorization_bytes = 3;
+  int64 expires_at_unix_ms = 4;
+  Socks5Proxy proxy = 5;
+}
+
+message Socks5Proxy {
+  string host = 1;
+  int32 port = 2;
+  string username = 3;
+  string password = 4;
+}
+
+message PrepareCallProxyRequest {
+  string account_id = 1;
+  string device_token = 2;
+}
+
+message PrepareCallProxyResponse {
+  Socks5Proxy proxy = 1;
+  int64 expires_at_unix_ms = 2;
+}
+
+message MediaAuthorizationReportRequest {
+  string account_id = 1;
+  string device_token = 2;
+  int32 target_dc_id = 3;
+  enum Result {
+    RESULT_UNSPECIFIED = 0;
+    RESULT_IMPORTED = 1;
+    RESULT_EXPIRED = 2;
+    RESULT_REVOKED = 3;
+    RESULT_FAILED = 4;
+  }
+  Result result = 4;
+}
+
+message MediaAuthorizationReportResponse {}
+
+message MediaDownloadRequest {
+  string account_id = 1;
+  string device_token = 2;
+  bytes tl_request = 3;
+  int32 target_dc_id = 4;
+  int64 offset = 5;
+  int32 limit = 6;
+}
+
+message MediaChunk {
+  int64 offset = 1;
+  bytes data = 2;
+  bool eof = 3;
+  bytes tl_response = 4;
+  int32 telegram_error_code = 5;
+  string telegram_error_message = 6;
+}
+
+message MediaUploadRequest {
+  string account_id = 1;
+  string device_token = 2;
+  bytes tl_request = 3;
+  int32 target_dc_id = 4;
+}
+
+message MediaUploadResult {
+  bytes tl_response = 1;
+  int32 telegram_error_code = 2;
+  string telegram_error_message = 3;
+}
+
+message ClientEnvelope {
+  string request_id = 1;
+  string account_id = 2;
+  string device_token = 3;
+  int32 api_layer = 4;
+  bytes tl_payload = 5;
+  TraceContext trace = 6;
+  int32 target_dc_id = 9;
+  oneof control {
+    AckUpdates ack_updates = 7;
+    LoginRequest login = 8;
+  }
+}
+
+message ServerEnvelope {
+  string request_id = 1;
+  string correlation_id = 2;
+  int64 server_time_unix_ms = 3;
+  oneof payload {
+    bytes tl_response = 4;
+    RpcError error = 5;
+    Updates updates = 6;
+    LoginResult login = 7;
+  }
+}
+
+message TraceContext { string traceparent = 1; }
+message AckUpdates { int64 sequence = 1; }
+message Updates { int64 sequence = 1; bytes tl_payload = 2; bool recovery_required = 3; }
+message RpcError { string code = 1; string message = 2; bool retryable = 3; }
+
+message LoginRequest {
+  oneof action {
+    RequestLoginCode request_code = 1;
+    SubmitLoginCode submit_code = 2;
+    SubmitLoginPassword submit_password = 3;
+  }
+}
+
+message RequestLoginCode { string phone_e164 = 1; string device_id = 2; }
+message SubmitLoginCode { string challenge_id = 1; string code = 2; }
+message SubmitLoginPassword { string challenge_id = 1; string password = 2; }
+
+message LoginResult {
+  string challenge_id = 1;
+  int64 expires_at_unix_ms = 2;
+  bool password_required = 3;
+  bool authorized = 4;
+  string account_id = 5;
+  string device_token = 6;
+  int64 telegram_user_id = 7;
+  string display_name = 8;
+  int32 code_length = 9;
+}
