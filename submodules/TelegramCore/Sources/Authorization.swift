@@ -1067,6 +1067,7 @@ public func authorizeWithCode(accountManager: AccountManager<TelegramAccountMana
                 |> mapError { _ -> AuthorizationCodeVerificationError in }
             }
         }
+        |> castError(AuthorizationCodeVerificationError.self)
         |> switchToLatest
     }
     return account.postbox.transaction { transaction -> Signal<AuthorizeWithCodeResult, AuthorizationCodeVerificationError> in
@@ -1228,6 +1229,7 @@ public func authorizeWithPassword(accountManager: AccountManager<TelegramAccount
                 |> mapError { _ -> AuthorizationPasswordVerificationError in }
             }
         }
+        |> castError(AuthorizationPasswordVerificationError.self)
         |> switchToLatest
     }
     return verifyPassword(account, password: password)

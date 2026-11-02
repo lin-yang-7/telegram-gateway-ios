@@ -82,8 +82,8 @@ public enum GatewayLoginTransport {
                 let activeCall = call
                 let activeChannel = channel
                 lock.unlock()
-                activeCall?.cancel()
-                activeChannel?.close(promise: nil)
+                activeCall?.cancel(promise: nil)
+                activeChannel?.close(promise: group.next().makePromise(of: Void.self))
                 group.shutdownGracefully { _ in }
                 switch result {
                 case let .success(value):
@@ -96,9 +96,9 @@ public enum GatewayLoginTransport {
             do {
                 let opened = try GRPCChannelPool.with(target: .host(endpoint.host, port: endpoint.port), transportSecurity: .tls(.makeClientConfigurationBackedByNIOSSL()), eventLoopGroup: group)
                 channel = opened
-                let client = AnyServiceClient(channel: opened)
+                let client = GRPCAnyServiceClient(channel: opened)
                 call = client.makeBidirectionalStreamingCall(path: "/gateway.v1.GatewaySession/Connect", requestType: Gateway_V1_ClientEnvelope.self, responseType: Gateway_V1_ServerEnvelope.self, handler: { response in
-                    if response.hasLogin {
+                    if case .login? = response.payload {
                         finish(.success(GatewayLoginResult(response.login)))
                     } else {
                         finish(.failure(.rejected))

@@ -172,8 +172,10 @@ private final class GatewayNetworkSession: NetworkEngineSession {
         let group = self.group
         self.group = nil
         self.lock.unlock()
-        call?.cancel()
-        channel?.close(promise: nil)
+        call?.cancel(promise: nil)
+        if let group, let channel {
+            channel.close(promise: group.next().makePromise(of: Void.self))
+        }
         try? group?.syncShutdownGracefully()
         for request in requests {
             self.complete(request, error: "GATEWAY_UNAVAILABLE")
@@ -234,7 +236,7 @@ private final class GatewayNetworkSession: NetworkEngineSession {
             self.streamGeneration += 1
             let generation = self.streamGeneration
             let channel = try GRPCChannelPool.with(target: .host(endpoint.host, port: endpoint.port), transportSecurity: .tls(.makeClientConfigurationBackedByNIOSSL()), eventLoopGroup: group)
-            let client = AnyServiceClient(channel: channel)
+            let client = GRPCAnyServiceClient(channel: channel)
             self.group = group
             self.channel = channel
             self.call = client.makeBidirectionalStreamingCall(path: "/gateway.v1.GatewaySession/Connect", requestType: Gateway_V1_ClientEnvelope.self, responseType: Gateway_V1_ServerEnvelope.self, handler: { [weak self] response in
@@ -274,7 +276,7 @@ private final class GatewayNetworkSession: NetworkEngineSession {
         let request = self.pending.removeValue(forKey: response.requestID)
         let sinks = self.sinks
         self.lock.unlock()
-        if response.hasUpdates {
+        if case .updates? = response.payload {
             if response.updates.recoveryRequired {
                 for sink in sinks {
                     sink.networkSessionDidReset()
@@ -293,7 +295,7 @@ private final class GatewayNetworkSession: NetworkEngineSession {
         guard let request else {
             return
         }
-        if response.hasError {
+        if case .error? = response.payload {
             self.complete(request, error: response.error.code)
         } else if response.tlResponse.isEmpty {
             self.complete(request, error: "GATEWAY_INVALID_RESPONSE")
@@ -318,7 +320,9 @@ private final class GatewayNetworkSession: NetworkEngineSession {
         let group = self.group
         self.group = nil
         self.lock.unlock()
-        channel?.close(promise: nil)
+        if let group, let channel {
+            channel.close(promise: group.next().makePromise(of: Void.self))
+        }
         group?.shutdownGracefully { _ in }
         for request in requests {
             self.complete(request, error: "GATEWAY_UNAVAILABLE")
