@@ -72,7 +72,7 @@ public final class AuthorizationSequenceSplashController: ViewController {
         
         self.controller = RMIntroViewController(backgroundColor: theme.list.plainBackgroundColor, primaryColor: theme.list.itemPrimaryTextColor, buttonColor: theme.intro.startButtonColor, accentColor: theme.list.itemAccentColor, regularDotColor: theme.intro.dotColor, highlightedDotColor: theme.list.itemAccentColor, suggestedLocalizationSignal: localizationSignal)
         
-        self.startButton = SolidRoundedButtonNode(title: "Start Messaging", theme: SolidRoundedButtonTheme(theme: theme), glass: false, height: 50.0, cornerRadius: 50.0 * 0.5, isShimmering: true)
+        self.startButton = SolidRoundedButtonNode(title: "开始聊天", theme: SolidRoundedButtonTheme(theme: theme), glass: false, height: 50.0, cornerRadius: 50.0 * 0.5, isShimmering: true)
         self.startButton.accessibilityIdentifier = "Auth.Welcome.StartButton"
 
         super.init(navigationBarPresentationData: nil)
@@ -249,21 +249,7 @@ public final class AuthorizationSequenceSplashController: ViewController {
     // New installations start in Simplified Chinese. An existing shared
     // localization setting is always a deliberate user choice and wins.
     private func activateDefaultLocalization() {
-        let currentCode = self.accountManager.transaction { transaction -> String? in
-            return transaction.getSharedData(SharedDataKeys.localizationSettings)?.get(LocalizationSettings.self)?.primaryComponent.languageCode
-        }
-        self.activateLocalizationDisposable.set((currentCode
-        |> take(1)
-        |> deliverOnMainQueue).start(next: { [weak self] currentCode in
-            guard let strongSelf = self else {
-                return
-            }
-            if currentCode == nil && GatewayEndpoint() == nil {
-                strongSelf.activateLocalization("zh-hans")
-            } else {
-                strongSelf.pressNext(strings: nil)
-            }
-        }))
+        self.pressNext(strings: nil)
     }
     
     private func pressNext(strings: PresentationStrings?) {
