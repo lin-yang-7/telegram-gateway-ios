@@ -6,7 +6,7 @@ http_archive = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "ht
 # rules declared by rules_swift are not visible to the root Bzlmod module.
 http_archive(
     name = "com_github_apple_swift_protobuf",
-    build_file = "@build_bazel_rules_swift//third_party:com_github_apple_swift_protobuf/BUILD.overlay",
+    build_file = "//build-system/bazel-overlays:com_github_apple_swift_protobuf.BUILD",
     sha256 = "3fb50bd4d293337f202d917b6ada22f9548a0a0aed9d9a4d791e6fbd8a246ebb",
     strip_prefix = "swift-protobuf-1.20.2/",
     urls = ["https://github.com/apple/swift-protobuf/archive/1.20.2.tar.gz"],
@@ -14,7 +14,7 @@ http_archive(
 
 http_archive(
     name = "com_github_grpc_grpc_swift",
-    build_file = "@build_bazel_rules_swift//third_party:com_github_grpc_grpc_swift/BUILD.overlay",
+    build_file = "//build-system/bazel-overlays:com_github_grpc_grpc_swift.BUILD",
     sha256 = "58b60431d0064969f9679411264b82e40a217ae6bd34e17096d92cc4e47556a5",
     strip_prefix = "grpc-swift-1.16.0/",
     urls = ["https://github.com/grpc/grpc-swift/archive/1.16.0.tar.gz"],
@@ -22,7 +22,7 @@ http_archive(
 
 http_archive(
     name = "com_github_apple_swift_nio",
-    build_file = "@build_bazel_rules_swift//third_party:com_github_apple_swift_nio/BUILD.overlay",
+    build_file = "//build-system/bazel-overlays:com_github_apple_swift_nio.BUILD",
     sha256 = "9ec79852fd03d2e933ece3299ea6c8b8de6960625f7246fd65958409d1420215",
     strip_prefix = "swift-nio-2.51.0/",
     urls = ["https://github.com/apple/swift-nio/archive/2.51.0.tar.gz"],
@@ -30,15 +30,15 @@ http_archive(
 
 http_archive(
     name = "com_github_apple_swift_nio_http2",
-    build_file = "@build_bazel_rules_swift//third_party:com_github_apple_swift_nio_http2/BUILD.overlay",
-    sha256 = "f0edfc1674af6031125a9884480a1e31e1bcf48b8f558b3e8bcc6b6fcd6e8b61",
+    build_file = "//build-system/bazel-overlays:com_github_apple_swift_nio_http2.BUILD",
+    sha256 = "f0edfc9d6a7be1d587e5b403f2d04264bdfae59aac1d74f7d974a9022c6d2b25",
     strip_prefix = "swift-nio-http2-1.26.0/",
     urls = ["https://github.com/apple/swift-nio-http2/archive/1.26.0.tar.gz"],
 )
 
 http_archive(
     name = "com_github_apple_swift_nio_transport_services",
-    build_file = "@build_bazel_rules_swift//third_party:com_github_apple_swift_nio_transport_services/BUILD.overlay",
+    build_file = "//build-system/bazel-overlays:com_github_apple_swift_nio_transport_services.BUILD",
     sha256 = "f3498dafa633751a52b9b7f741f7ac30c42bcbeb3b9edca6d447e0da8e693262",
     strip_prefix = "swift-nio-transport-services-1.15.0/",
     urls = ["https://github.com/apple/swift-nio-transport-services/archive/1.15.0.tar.gz"],
@@ -46,7 +46,7 @@ http_archive(
 
 http_archive(
     name = "com_github_apple_swift_nio_extras",
-    build_file = "@build_bazel_rules_swift//third_party:com_github_apple_swift_nio_extras/BUILD.overlay",
+    build_file = "//build-system/bazel-overlays:com_github_apple_swift_nio_extras.BUILD",
     sha256 = "4684b52951d9d9937bb3e8ccd6b5daedd777021ef2519ea2f18c4c922843b52b",
     strip_prefix = "swift-nio-extras-1.4.0/",
     urls = ["https://github.com/apple/swift-nio-extras/archive/1.4.0.tar.gz"],
@@ -54,7 +54,7 @@ http_archive(
 
 http_archive(
     name = "com_github_apple_swift_log",
-    build_file = "@build_bazel_rules_swift//third_party:com_github_apple_swift_log/BUILD.overlay",
+    build_file = "//build-system/bazel-overlays:com_github_apple_swift_log.BUILD",
     sha256 = "5eaed6614cfaad882b8a0b5cb5d2177b533056b469ba431ad3f375193d370b70",
     strip_prefix = "swift-log-1.6.3/",
     urls = ["https://github.com/apple/swift-log/archive/1.6.3.tar.gz"],
@@ -62,7 +62,7 @@ http_archive(
 
 http_archive(
     name = "com_github_apple_swift_nio_ssl",
-    build_file = "@build_bazel_rules_swift//third_party:com_github_apple_swift_nio_ssl/BUILD.overlay",
+    build_file = "//build-system/bazel-overlays:com_github_apple_swift_nio_ssl.BUILD",
     sha256 = "792882c884b2b89de0e9189557ea928bc019be2d9a89d63831876a746cbe9ce3",
     strip_prefix = "swift-nio-ssl-2.26.0/",
     urls = ["https://github.com/apple/swift-nio-ssl/archive/2.26.0.tar.gz"],
@@ -70,7 +70,7 @@ http_archive(
 
 http_archive(
     name = "com_github_apple_swift_collections",
-    build_file = "@build_bazel_rules_swift//third_party:com_github_apple_swift_collections/BUILD.overlay",
+    build_file = "//build-system/bazel-overlays:com_github_apple_swift_collections.BUILD",
     sha256 = "d9e4c8a91c60fb9c92a04caccbb10ded42f4cb47b26a212bc6b39cc390a4b096",
     strip_prefix = "swift-collections-1.0.4/",
     urls = ["https://github.com/apple/swift-collections/archive/1.0.4.tar.gz"],
@@ -78,7 +78,7 @@ http_archive(
 
 http_archive(
     name = "com_github_apple_swift_atomics",
-    build_file = "@build_bazel_rules_swift//third_party:com_github_apple_swift_atomics/BUILD.overlay",
+    build_file = "//build-system/bazel-overlays:com_github_apple_swift_atomics.BUILD",
     sha256 = "1bee7f469f7e8dc49f11cfa4da07182fbc79eab000ec2c17bfdce468c5d276fb",
     strip_prefix = "swift-atomics-1.1.0/",
     urls = ["https://github.com/apple/swift-atomics/archive/1.1.0.tar.gz"],
@@ -115,6 +115,13 @@ bazel_dep(name = "platforms", version = "1.1.0")
 bazel_dep(name = "rules_cc", version = "0.2.20")
 bazel_dep(name = "rules_rust", version = "0.74.0")
 bazel_dep(name = "rules_shell", version = "0.6.1")
+
+# `//submodules/GatewayProtocol` loads `@protobuf//bazel:proto_library.bzl`, and rules_swift's
+# `swift_proto_library` is built on the same `ProtoInfo`. rules_swift already puts protobuf in the
+# module graph, but a repository is only visible to the main repository when the ROOT module
+# declares it - otherwise the load fails with `No repository visible as '@protobuf' from main
+# repository`. Pinned to rules_swift's own version so both agree on one ProtoInfo definition.
+bazel_dep(name = "protobuf", version = "34.0.bcr.1")
 
 rust = use_extension("@rules_rust//rust:extensions.bzl", "rust")
 rust.toolchain(

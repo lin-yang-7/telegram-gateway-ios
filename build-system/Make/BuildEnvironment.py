@@ -5,10 +5,24 @@ import subprocess
 import sys
 
 def is_apple_silicon():
-    if platform.processor() == 'arm':
-        return True
-    else:
-        return False
+    # `platform.processor()` reports "i386" when this Python itself runs under
+    # Rosetta on an Apple Silicon Mac. Using that would pick the x86_64 Bazel
+    # (and the generated Xcode project would then build for an x86_64
+    # simulator, which this project does not support: Texture only uses
+    # `os_unfair_lock` on `__aarch64__`, and subcodec's NEON source is ARM-only).
+    # `hw.optional.arm64` describes the hardware regardless of the calling
+    # process's architecture.
+    try:
+        result = subprocess.run(
+            ['/usr/sbin/sysctl', '-n', 'hw.optional.arm64'],
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode == 0 and result.stdout.strip() == '1':
+            return True
+    except OSError:
+        pass
+    return platform.processor() == 'arm'
 
 
 def get_clean_env(use_clean_env=True):
