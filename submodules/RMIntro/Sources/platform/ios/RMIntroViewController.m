@@ -102,7 +102,7 @@ typedef enum {
     TGSuggestedLocalization *_alternativeLocalizationInfo;
     
     SVariable *_alternativeLocalization;
-    NSDictionary<NSString *, NSString *> *_englishStrings;
+    NSDictionary<NSString *, NSString *> *_localizedStrings;
     
     UIView *_wrapperView;
     UIView *_startButton;
@@ -114,7 +114,7 @@ typedef enum {
 
 @implementation RMIntroViewController
 
-- (instancetype)initWithBackgroundColor:(UIColor *)backgroundColor primaryColor:(UIColor *)primaryColor buttonColor:(UIColor *)buttonColor accentColor:(UIColor *)accentColor regularDotColor:(UIColor *)regularDotColor highlightedDotColor:(UIColor *)highlightedDotColor suggestedLocalizationSignal:(SSignal *)suggestedLocalizationSignal
+- (instancetype)initWithBackgroundColor:(UIColor *)backgroundColor primaryColor:(UIColor *)primaryColor buttonColor:(UIColor *)buttonColor accentColor:(UIColor *)accentColor regularDotColor:(UIColor *)regularDotColor highlightedDotColor:(UIColor *)highlightedDotColor suggestedLocalizationSignal:(SSignal *)suggestedLocalizationSignal strings:(NSDictionary<NSString *, NSString *> *)strings
 {
     self = [super init];
     if (self != nil)
@@ -144,24 +144,21 @@ typedef enum {
             @"Tour.StartButton"
         ];
         
-        NSMutableDictionary *englishStrings = [[NSMutableDictionary alloc] init];
-        NSBundle *bundle = [NSBundle bundleWithPath:[[NSBundle mainBundle] pathForResource:@"en" ofType:@"lproj"]];
+        // The tour texts follow the app's presentation language, which is a
+        // runtime setting (it can also be a server-provided langpack), so they
+        // cannot be read from the main bundle's `.lproj` for a fixed language.
+        NSMutableDictionary *localizedStrings = [[NSMutableDictionary alloc] init];
         for (NSString *key in stringKeys) {
-            if (bundle != nil) {
-                NSString *value = [bundle localizedStringForKey:key value:key table:nil];
-                if (value != nil) {
-                    englishStrings[key] = value;
-                } else {
-                    englishStrings[key] = key;
-                }
-            } else {
-                englishStrings[key] = key;
+            NSString *value = strings[key];
+            if (value == nil) {
+                value = key;
             }
+            localizedStrings[key] = value;
         }
-        _englishStrings = englishStrings;
+        _localizedStrings = localizedStrings;
         
-        _headlines = @[ _englishStrings[@"Tour.Title1"], _englishStrings[@"Tour.Title2"],  _englishStrings[@"Tour.Title6"], _englishStrings[@"Tour.Title3"], _englishStrings[@"Tour.Title4"], _englishStrings[@"Tour.Title5"]];
-        _descriptions = @[_englishStrings[@"Tour.Text1"], _englishStrings[@"Tour.Text2"],  _englishStrings[@"Tour.Text6"], _englishStrings[@"Tour.Text3"], _englishStrings[@"Tour.Text4"], _englishStrings[@"Tour.Text5"]];
+        _headlines = @[ _localizedStrings[@"Tour.Title1"], _localizedStrings[@"Tour.Title2"],  _localizedStrings[@"Tour.Title6"], _localizedStrings[@"Tour.Title3"], _localizedStrings[@"Tour.Title4"], _localizedStrings[@"Tour.Title5"]];
+        _descriptions = @[_localizedStrings[@"Tour.Text1"], _localizedStrings[@"Tour.Text2"],  _localizedStrings[@"Tour.Text6"], _localizedStrings[@"Tour.Text3"], _localizedStrings[@"Tour.Text4"], _localizedStrings[@"Tour.Text5"]];
         
         __weak RMIntroViewController *weakSelf = self;
         _didEnterBackgroundObserver = [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationDidEnterBackgroundNotification object:nil queue:nil usingBlock:^(__unused NSNotification *notification)

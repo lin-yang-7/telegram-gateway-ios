@@ -30,7 +30,7 @@ public final class AuthorizationSequenceSplashController: ViewController {
     
     private let startButton: SolidRoundedButtonNode
     
-    init(accountManager: AccountManager<TelegramAccountManagerTypes>, account: UnauthorizedAccount, theme: PresentationTheme) {
+    init(accountManager: AccountManager<TelegramAccountManagerTypes>, account: UnauthorizedAccount, theme: PresentationTheme, strings: PresentationStrings) {
         self.accountManager = accountManager
         self.account = account
         self.theme = theme
@@ -70,9 +70,27 @@ public final class AuthorizationSequenceSplashController: ViewController {
             })
         })
         
-        self.controller = RMIntroViewController(backgroundColor: theme.list.plainBackgroundColor, primaryColor: theme.list.itemPrimaryTextColor, buttonColor: theme.intro.startButtonColor, accentColor: theme.list.itemAccentColor, regularDotColor: theme.intro.dotColor, highlightedDotColor: theme.list.itemAccentColor, suggestedLocalizationSignal: localizationSignal)
+        // The tour texts come from the app's presentation strings rather than
+        // from a fixed `.lproj`, so they follow the active language.
+        let introStrings: [String: String] = [
+            "Tour.Title1": strings.Tour_Title1,
+            "Tour.Title2": strings.Tour_Title2,
+            "Tour.Title3": strings.Tour_Title3,
+            "Tour.Title4": strings.Tour_Title4,
+            "Tour.Title5": strings.Tour_Title5,
+            "Tour.Title6": strings.Tour_Title6,
+            "Tour.Text1": strings.Tour_Text1,
+            "Tour.Text2": strings.Tour_Text2,
+            "Tour.Text3": strings.Tour_Text3,
+            "Tour.Text4": strings.Tour_Text4,
+            "Tour.Text5": strings.Tour_Text5,
+            "Tour.Text6": strings.Tour_Text6,
+            "Tour.StartButton": strings.Tour_StartButton
+        ]
         
-        self.startButton = SolidRoundedButtonNode(title: "开始聊天", theme: SolidRoundedButtonTheme(theme: theme), glass: false, height: 50.0, cornerRadius: 50.0 * 0.5, isShimmering: true)
+        self.controller = RMIntroViewController(backgroundColor: theme.list.plainBackgroundColor, primaryColor: theme.list.itemPrimaryTextColor, buttonColor: theme.intro.startButtonColor, accentColor: theme.list.itemAccentColor, regularDotColor: theme.intro.dotColor, highlightedDotColor: theme.list.itemAccentColor, suggestedLocalizationSignal: localizationSignal, strings: introStrings)
+        
+        self.startButton = SolidRoundedButtonNode(title: strings.Tour_StartButton, theme: SolidRoundedButtonTheme(theme: theme), glass: false, height: 50.0, cornerRadius: 50.0 * 0.5, isShimmering: true)
         self.startButton.accessibilityIdentifier = "Auth.Welcome.StartButton"
 
         super.init(navigationBarPresentationData: nil)
@@ -246,8 +264,12 @@ public final class AuthorizationSequenceSplashController: ViewController {
         })
     }
 
-    // New installations start in Simplified Chinese. An existing shared
-    // localization setting is always a deliberate user choice and wins.
+    // New installations already read Simplified Chinese because
+    // `defaultPresentationStrings` is the bundled `zh-Hans` pack; an existing
+    // shared localization setting (a deliberate choice, or one written by the
+    // server-side localization sync) wins over it. Do not call
+    // `activateLocalization` here: that path downloads a langpack from the
+    // server, which this gateway build does not necessarily provide.
     private func activateDefaultLocalization() {
         self.pressNext(strings: nil)
     }

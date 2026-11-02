@@ -140,7 +140,7 @@ public final class AuthorizationSequenceController: NavigationController, ASAuth
         if let currentController = currentController {
             controller = currentController
         } else {
-            controller = AuthorizationSequenceSplashController(accountManager: self.sharedContext.accountManager, account: self.account, theme: self.presentationData.theme)
+            controller = AuthorizationSequenceSplashController(accountManager: self.sharedContext.accountManager, account: self.account, theme: self.presentationData.theme, strings: self.presentationData.strings)
             controller.nextPressed = { [weak self] strings in
                 if let strongSelf = self {
                     if let strings = strings {
